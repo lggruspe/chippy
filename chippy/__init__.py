@@ -243,9 +243,11 @@ class InstructionSet:
                 shifted_row = row >> -shift_amount
             else:
                 shifted_row = row << shift_amount
-            xor = self.display[Y + i] ^ shifted_row
-            unset = self.display[Y + i] & xor
-            self.display[Y + i] = xor
+
+            Y32 = (Y + i) & 0x1f
+            xor = self.display[Y32] ^ shifted_row
+            unset = self.display[Y32] & xor
+            self.display[Y32] = xor
 
             if shift_amount < 0:
                 unset <<= -shift_amount
