@@ -6,12 +6,10 @@ import subprocess
 import sys
 import time
 
+from . import keypad
+
 class ChippyError(Exception):
     """Base chippy error."""
-
-def wait_keypress():
-    """Wait for hex keypress."""
-    return int(input("[press key] "), 16) & 0xf
 
 class InstructionSet:
     @staticmethod
@@ -97,7 +95,6 @@ class InstructionSet:
     def op_00e0(self):
         """Clear chip8 display."""
         self.initialize_display()
-        # self.increment()
 
     @staticmethod
     def op_00ee(self):
@@ -122,57 +119,48 @@ class InstructionSet:
         """Skip the next instruction if Vx == kk."""
         if self.registers[x] == kk:
             self.increment()
-        # self.increment()
 
     @staticmethod
     def op_4xkk(self, x, kk):
         """Skip next instruction if Vx != kk."""
         if self.registers[x] != kk:
             self.increment()
-        # self.increment()
 
     @staticmethod
     def op_5xy0(self, x, y):
         """Skip next instruction if Vx = Vy."""
         if self.registers[x] == self.registers[y]:
             self.increment()
-        # self.increment()
 
     @staticmethod
     def op_6xkk(self, x, kk):
         """Put kk into Vx."""
         self.registers[x] = kk
-        # self.increment()
 
     @staticmethod
     def op_7xkk(self, x, kk):
         """Add kk to Vx."""
         self.registers[x] = (self.registers[x] + kk) & 0xff
-        # self.increment()
 
     @staticmethod
     def op_8xy0(self, x, y):
         """Set Vx = Vy."""
         self.registers[x] = self.registers[y]
-        # self.increment()
 
     @staticmethod
     def op_8xy1(self, x, y):
         """Set Vx = Vx OR Vy."""
         self.registers[x] |= self.registers[y]
-        # self.increment()
 
     @staticmethod
     def op_8xy2(self, x, y):
         """Set Vx = Vx AND Vy."""
         self.registers[x] &= self.registers[y]
-        # self.increment()
 
     @staticmethod
     def op_8xy3(self, x, y):
         """Set Vx = Vx XOR Vy."""
         self.registers[x] ^= self.registers[y]
-        # self.increment()
 
     @staticmethod
     def op_8xy4(self, x, y):
@@ -180,14 +168,12 @@ class InstructionSet:
         total = self.registers[x] + self.registers[y]
         self.registers[0xf] = int(total > 0xff)
         self.registers[x] = total & 0xff
-        # self.increment()
 
     @staticmethod
     def op_8xy5(self, x, y):
         """Subtract Vy from Vx and set Vf to 1 if there's no borrow."""
         self.registers[0xf] = int(self.registers[x] >= self.registers[y])
         self.registers[x] = (self.registers[x] - self.registers[y]) & 0xff
-        # self.increment()
 
     @staticmethod
     def op_8xy6(self, x, y):
@@ -199,14 +185,12 @@ class InstructionSet:
         """
         self.registers[0xf] = self.registers[y] & 0x01
         self.registers[x] = self.registers[y] >> 1
-        # self.increment()
 
     @staticmethod
     def op_8xy7(self, x, y):
         """Set Vx = Vy - Vx and set Vf to 1 if there's no borrow."""
         self.registers[0xf] = int(self.registers[y] >= self.registers[x])
         self.registers[x] = (self.registers[y] - self.registers[x]) & 0xff
-        # self.increment()
 
     @staticmethod
     def op_8xye(self, x, y):
@@ -218,20 +202,17 @@ class InstructionSet:
         """
         self.registers[0xf] = self.registers[y] >> 7
         self.registers[x] = (self.registers[y] << 1) & 0xff
-        # self.increment()
 
     @staticmethod
     def op_9xy0(self, x, y):
         """Skip next instruction if Vx != Vy."""
         if self.registers[x] != self.registers[y]:
             self.increment()
-        # self.increment()
 
     @staticmethod
     def op_annn(self, nnn):
         """Set I to nnn."""
         self.I = nnn
-        # self.increment()
 
     @staticmethod
     def op_bnnn(self, nnn):
@@ -242,7 +223,6 @@ class InstructionSet:
     def op_cxkk(self, x, kk):
         """Set Vx = random byte & kk."""
         self.registers[x] = random.randint(0x00, 0xff) & kk
-        # self.increment()
 
     @staticmethod
     def op_dxyn(self, x, y, nibble):
@@ -278,50 +258,46 @@ class InstructionSet:
     @staticmethod
     def op_ex9e(self, x):
         """Skip next instruction if key with the value of Vx is pressed."""
-        raise NotImplementedError
-        # self.increment()
+        pressed = (self.keypad >> (self.registers[x] & 0xf)) & 0x1
+        if pressed:
+            self.increment()
 
     @staticmethod
     def op_exa1(self, x):
         """Skip next instruction if key with the value of Vx is not pressed."""
-        raise NotImplementedError
-        # self.increment()
+        pressed = (self.keypad >> (self.registers[x] & 0xf)) & 0x1
+        if not pressed:
+            self.increment()
 
     @staticmethod
     def op_fx07(self, x):
         """Set Vx to the delay timer value."""
         self.registers[x] = self.delay_timer
-        # self.increment()
 
     @staticmethod
     def op_fx0a(self, x):
         """Wait for a key press and store the value of the key in Vx."""
-        self.registers[x] = wait_keypress()
-        # self.increment()
+        self.registers[x] = keypad.wait_keypress()
 
     @staticmethod
     def op_fx15(self, x):
         """Set the delay timer to Vx."""
         self.delay_timer = self.registers[x]
-        # self.increment()
 
     @staticmethod
     def op_fx18(self, x):
         """Set the sound timer to Vx."""
         self.sound_timer = self.registers[x]
-        # self.increment()
 
     @staticmethod
     def op_fx1e(self, x):
         """Add Vx to I."""
         self.I = (self.I + self.registers[x]) & 0xffff
-        # self.increment()
 
     @staticmethod
     def op_fx29(self, x):
         """Set I to location of sprite for digit in Vx."""
         self.I = (self.registers[x] & 0x0f) * 5
-        # self.increment()
 
     @staticmethod
     def op_fx33(self, x):
@@ -332,7 +308,6 @@ class InstructionSet:
         self.ram[self.I] = b
         self.ram[self.I+1] = c
         self.ram[self.I+2] = d
-        # self.increment()
 
     @staticmethod
     def op_fx55(self, x):
@@ -342,7 +317,6 @@ class InstructionSet:
         """
         self.ram[self.I:self.I + x+1] = self.registers[:x+1]
         self.I = (self.I + x + 1) & 0xffff
-        # self.increment()
 
     @staticmethod
     def op_fx65(self, x):
@@ -352,7 +326,6 @@ class InstructionSet:
         """
         self.registers[:x+1] = self.ram[self.I:self.I + x + 1]
         self.I = (self.I + x + 1) & 0xffff
-        # self.increment()
 
 class Chippy:
     def __init__(self):
@@ -453,7 +426,7 @@ class Chippy:
     def cycle(self):
         """Simulate one cycle."""
         instruction = self.fetch()
-        self.increment()    # ?
+        self.increment()
         self.execute(instruction)
 
         self.show_display()
@@ -472,6 +445,7 @@ class Chippy:
 
     def run(self):
         """Run program stored in memory."""
+        keypad.listen(self)
         while True:
             self.cycle()
             self.countdown()
