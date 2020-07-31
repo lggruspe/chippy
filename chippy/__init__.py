@@ -435,7 +435,6 @@ class Chippy:
 
     def run(self):
         """Run program stored in memory."""
-        keypad.listen(self)
         display = Display(self)
         display.init_screen()
 

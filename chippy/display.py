@@ -2,6 +2,12 @@
 
 import pygame
 
+from .keypad import press, release
+
+def convert_key(key):
+    """Convert pygame key constant to hex character."""
+    return chr(key)
+
 def draw_pixel(x, y, scale=1):
     """Draw pixel on the display."""
     surface = pygame.display.get_surface()
@@ -50,3 +56,9 @@ class Display:
             if event.type == pygame.QUIT:
                 self.running = False
                 return
+            if event.type == pygame.KEYDOWN:
+                key = convert_key(event.key)
+                press(self.chip8, key)
+            elif event.type == pygame.KEYUP:
+                key = convert_key(event.key)
+                release(self.chip8, key)
