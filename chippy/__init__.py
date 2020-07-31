@@ -7,8 +7,7 @@ import sys
 import threading
 import time
 
-from . import keypad
-from .display import Display
+from .window import Window
 
 class ChippyError(Exception):
     """Base chippy error."""
@@ -280,7 +279,7 @@ class InstructionSet:
     @staticmethod
     def op_fx0a(self, x):
         """Wait for a key press and store the value of the key in Vx."""
-        self.registers[x] = keypad.wait_keypress()
+        self.waiting.append(x)
 
     @staticmethod
     def op_fx15(self, x):
@@ -351,6 +350,7 @@ class Chippy:
         self.initialize_sprite_data()
 
         self.running = False
+        self.waiting = []
 
     def initialize_display(self):
         """Clear display."""
@@ -433,16 +433,18 @@ class Chippy:
     def run(self):
         """Run program stored in memory."""
         self.running = True
-        display = Display(self)
-        display.init_screen()
+        window = Window(self)
+        window.init_screen()
 
         timer_60Hz = 0.01667
         while self.running:
             start_time = time.time()
 
-            self.cycle()
-            display.handle_events()
-            display.render()
+            if not self.waiting:
+                self.cycle()
+
+            window.handle_events()
+            window.render()
 
             cycle_duration = time.time() - start_time
 

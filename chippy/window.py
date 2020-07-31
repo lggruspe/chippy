@@ -1,8 +1,37 @@
-"""Chip8 display."""
+"""Chip8 display and keypad."""
 
 import pygame
 
-from .keypad import press, release
+def to_number(s):
+    """Convert one-hexdigit hexstring or KeyCode to number."""
+    try:
+        return int(s, 16) & 0xf
+    except ValueError:
+        pass
+    except TypeError:
+        pass
+
+def press(chip8, key):
+    """Press key on chip-8 keypad."""
+    shift_amount = to_number(key)
+    if shift_amount is None:
+        return
+    mask = 1 << shift_amount
+    chip8.keypad |= mask
+
+    # Handle op_fx0a
+    if chip8.waiting:
+        index = chip8.waiting.pop()
+        chip8.registers[index] = shift_amount
+
+def release(chip8, key):
+    """Release key on chip-8 keypad."""
+    shift_amount = to_number(key)
+    if shift_amount is None:
+        return
+    mask = 0xffff
+    mask -= (1 << shift_amount)
+    chip8.keypad &= mask
 
 def convert_key(key):
     """Convert pygame key constant to hex character."""
@@ -15,7 +44,7 @@ def draw_pixel(x, y, scale=1):
     color = pygame.Color(255, 255, 255)
     pygame.draw.rect(surface, color, rect)
 
-class Display:
+class Window:
     def __init__(self, chip8):
         self.width = 64
         self.height = 32
