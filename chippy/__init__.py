@@ -4,6 +4,7 @@ import array
 import random
 import subprocess
 import sys
+import threading
 import time
 
 from . import keypad
@@ -84,7 +85,6 @@ class InstructionSet:
             return handler, args
         message = f"Unknown instruction: {instruction:04x}"
         print(message, file=sys.stderr)
-        print(name)
         raise ChippyError(message)
 
     @staticmethod
@@ -350,6 +350,8 @@ class Chippy:
         self.initialize_display()
         self.initialize_sprite_data()
 
+        self.running = False
+
     def initialize_display(self):
         """Clear display."""
         self.display = array.array('Q', [0x0000000000000000] * 32)
@@ -420,13 +422,8 @@ class Chippy:
         self.increment()
         self.execute(instruction)
 
-        print("--------------------------------------")
-        print(f"{instruction:04x}")
-        print(f"{self.program_counter:#06x}")
-
     def countdown(self):
         """Decrement timers and perform timer-related actions."""
-        time.sleep(0.01)
         if self.delay_timer > 0:
             self.delay_timer -= 1
         if self.sound_timer > 0:
@@ -435,13 +432,25 @@ class Chippy:
 
     def run(self):
         """Run program stored in memory."""
+        self.running = True
         display = Display(self)
         display.init_screen()
 
-        while display.running:
-            self.cycle()
+        timer_60Hz = 0.01667
+        while self.running:
+            start_time = time.time()
 
+            self.cycle()
             display.handle_events()
             display.render()
 
-            self.countdown()
+            cycle_duration = time.time() - start_time
+
+            timer_60Hz -= cycle_duration
+            if timer_60Hz <= 0:
+                timer_60Hz = 0.01667
+                self.countdown()
+
+            remaining = 0.002 - cycle_duration
+            if remaining > 0:
+                time.sleep(remaining)

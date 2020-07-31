@@ -22,7 +22,6 @@ class Display:
         self.scale = 12
 
         self.chip8 = chip8
-        self.running = True
 
     @property
     def screen_size(self):
@@ -54,7 +53,7 @@ class Display:
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.running = False
+                self.chip8.running = False
                 return
             if event.type == pygame.KEYDOWN:
                 key = convert_key(event.key)
