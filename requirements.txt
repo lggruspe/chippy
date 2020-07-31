@@ -8,6 +8,7 @@ more-itertools==8.4.0
 packaging==20.4
 pluggy==0.13.1
 py==1.9.0
+pygame==1.9.6
 pylint==2.5.3
 pynput==1.6.8
 pyparsing==2.4.7

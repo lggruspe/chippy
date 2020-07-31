@@ -7,6 +7,7 @@ import sys
 import time
 
 from . import keypad
+from .display import Display
 
 class ChippyError(Exception):
     """Base chippy error."""
@@ -349,18 +350,6 @@ class Chippy:
         self.initialize_display()
         self.initialize_sprite_data()
 
-    def show_display(self):
-        """Show display."""
-        subprocess.run(["clear"])
-        for row in self.display:
-            bits = row
-            while bits:
-                cell = 0x8000000000000000 & bits
-                print('*' if cell else ' ', end="")
-                bits &= 0x7fffffffffffffff
-                bits <<= 1
-            print()
-
     def initialize_display(self):
         """Clear display."""
         self.display = array.array('Q', [0x0000000000000000] * 32)
@@ -431,7 +420,6 @@ class Chippy:
         self.increment()
         self.execute(instruction)
 
-        self.show_display()
         print("--------------------------------------")
         print(f"{instruction:04x}")
         print(f"{self.program_counter:#06x}")
@@ -448,6 +436,13 @@ class Chippy:
     def run(self):
         """Run program stored in memory."""
         keypad.listen(self)
-        while True:
+        display = Display(self)
+        display.init_screen()
+
+        while display.running:
             self.cycle()
+
+            display.handle_events()
+            display.render()
+
             self.countdown()
