@@ -29,7 +29,6 @@ def release(chip8, key):
     shift_amount = to_number(key)
     if shift_amount is None:
         return
-    left = 0xffff
-    right = (1 << (shift_amount + 1)) - 1
-    mask = left - (right >> 1)
+    mask = 0xffff
+    mask -= (1 << shift_amount)
     chip8.keypad &= mask
