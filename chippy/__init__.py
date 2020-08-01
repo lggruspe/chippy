@@ -1,6 +1,7 @@
 """Chip8 interpreter."""
 
 import array
+import pathlib
 import random
 import subprocess
 import sys
@@ -384,10 +385,9 @@ class Chippy:
     def buzz(self):
         """Sound buzzer."""
 
-    def load(self, program):
+    def load(self, program: pathlib.Path):
         """Load program into address 0x200."""
-        with open(program, "rb") as file:
-            binary = file.read()
+        binary = program.read_bytes()
         size = len(binary)
         if size >= len(self.ram) - 0x200:
             raise ChippyError("Ran out of memory.")

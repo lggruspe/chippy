@@ -1,20 +1,17 @@
 """Run chip8 interpreter."""
 
 from argparse import ArgumentParser
-import errno
-import os.path
-import sys
 
-from . import Chippy
+from . import app
 
 if __name__ == "__main__":
     parser = ArgumentParser(prog="Chippy", description="Run chip-8 emulator.")
-    parser.add_argument("program", help="chip-8 ROM")
+    parser.add_argument("-r", "--rom", help="load chip-8 ROM")
+    parser.add_argument("-l", "--list", action="store_true",
+                        help="list available ROMs")
     args = parser.parse_args()
-    if not os.path.isfile(args.program):
-        print(f"Program '{args.program}' not found.", file=sys.stderr)
-        sys.exit(errno.ENOENT)
 
-    chip = Chippy()
-    chip.load(args.program)
-    chip.run()
+    if args.list:
+        app.list_roms()
+    elif args.rom:
+        app.run(args.rom)
