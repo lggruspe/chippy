@@ -3,7 +3,8 @@ from pathlib import Path
 import errno
 import sys
 
-from . import Chippy
+from .chippy import Chippy
+from .debug import Disassembler
 
 def list_roms():
     """List avaiable ROMs."""
@@ -29,3 +30,11 @@ def run(program):
     chippy = Chippy()
     chippy.load(rom)
     chippy.run()
+
+def disassemble(program):
+    """Disassemble chip-8 program."""
+    rom = find_rom(program)
+    if rom is None:
+        print(f"Program '{program}' not found.", file=sys.stderr)
+        sys.exit(errno.ENOENT)
+    Disassembler.run(rom)
