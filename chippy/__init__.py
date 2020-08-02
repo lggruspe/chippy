@@ -9,6 +9,7 @@ import threading
 import time
 
 from .code import classify
+from .debug import Disassembler
 from .window import Window
 
 class ChippyError(Exception):
@@ -251,7 +252,7 @@ class InstructionSet:
 
     @staticmethod
     def op_fx65(self, x):
-        """Read registers v0 through Vx (inclusive) from memory starting at I.
+        """Read registers V0 through Vx (inclusive) from memory starting at I.
 
         The value of I gets incremented by x + 1 afterwards.
         """
@@ -350,10 +351,23 @@ class Chippy:
         handler, args = self.decode(instruction)
         handler(self, *args)
 
+    def disassemble(self, instruction):
+        """Disassemble instruction."""
+        name, *args = classify(instruction)
+        handler = getattr(Disassembler, name, None)
+        if handler:
+            code = handler(self, *args)
+            print(code)
+            return
+        message = f"Unknown instruction: {instruction:04x}"
+        print(message, file=sys.stderr)
+        raise ChippyError(message)
+
     def cycle(self):
         """Simulate one cycle."""
         instruction = self.fetch()
         self.increment()
+        self.disassemble(instruction) #
         self.execute(instruction)
 
     def countdown(self):

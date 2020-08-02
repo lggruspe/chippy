@@ -61,5 +61,3 @@ def classify(instruction):
             x = instruction & 0x0f00
             return f"op_fx{function:02x}", x >> 8
     return "",
-
-
