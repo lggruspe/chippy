@@ -4,7 +4,7 @@ import array
 import pathlib
 import time
 
-from .code import classify, handle_instruction, InstructionSet
+from .code import handle_instruction, InstructionSet
 from .debug import Disassembler
 from .errors import ChippyError
 from .window import Window
@@ -92,8 +92,11 @@ class Chippy:
 
     def disassemble(self, instruction):
         """Disassemble instruction."""
-        assembly = handle_instruction(Disassembler, instruction, self)
-        print(assembly)
+        assembly = handle_instruction(Disassembler, instruction, self, check=False)
+        if assembly:
+            print(assembly)
+        else:
+            print(f"Invalid instruction: {instruction:#06x}")
 
     def cycle(self):
         """Simulate one cycle."""

@@ -1,4 +1,5 @@
 import random
+import sys
 
 from .errors import ChippyError
 
@@ -308,13 +309,16 @@ def classify(instruction):
         if function in (0x07, 0x0a, 0x15, 0x18, 0x1e, 0x29, 0x33, 0x55, 0x65):
             x = instruction & 0x0f00
             return f"op_fx{function:02x}", x >> 8
+    return "",
 
-    message = f"Unknown instruction: {instruction:#06x}"
-    print(message, file=sys.stderr)
-    raise ChippyError(message)
-
-def handle_instruction(cls, instruction, chip8=None):
+def handle_instruction(cls, instruction, chip8=None, *, check=True):
     """Handle instruction using static methods in cls."""
     name, *args = classify(instruction)
+    if not name:
+        if not check:
+            return None
+        message = f"Unknown instruction: {instruction:#06x}"
+        print(message, file=sys.stderr)
+        raise ChippyError(message)
     handler = getattr(cls, name)
     return handler(chip8, *args)

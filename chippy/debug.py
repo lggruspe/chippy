@@ -224,5 +224,8 @@ class Disassembler:
                 continue
             next_byte = binary[offset + 1]
             instruction = (byte << 8) + next_byte
-            assembly = handle_instruction(Disassembler, instruction)
-            print(f"{0x200+offset:#06x} {instruction:#06x} {assembly}")
+            assembly = handle_instruction(Disassembler, instruction, check=False)
+            if assembly:
+                print(f"{0x200+offset:#06x} {instruction:#06x} {assembly}")
+            else:
+                print(f"Invalid instruction: {instruction:#06x}")
