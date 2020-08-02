@@ -4,6 +4,7 @@ import errno
 import sys
 
 from .chippy import Chippy
+from .config import Config
 from .debug import Disassembler
 
 def list_roms():
@@ -21,13 +22,13 @@ def find_rom(program):
     if rom.is_file():
         return rom
 
-def run(program):
+def run(program, config=Config()):
     """Run chip-8 program."""
     rom = find_rom(program)
     if rom is None:
         print(f"Program '{program}' not found.", file=sys.stderr)
         sys.exit(errno.ENOENT)
-    chippy = Chippy()
+    chippy = Chippy(config)
     chippy.load(rom)
     chippy.run()
 

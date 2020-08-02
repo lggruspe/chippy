@@ -5,12 +5,13 @@ import pathlib
 import time
 
 from .code import handle_instruction, InstructionSet
+from .config import Config
 from .debug import Disassembler
 from .errors import ChippyError
 from .window import Window
 
 class Chippy:
-    def __init__(self):
+    def __init__(self, config=Config()):
         """Initialize RAM, registers, stack, IO and sprite data."""
         self.ram = bytearray([0x00] * 4096)
 
@@ -31,6 +32,8 @@ class Chippy:
 
         self.running = False
         self.waiting = []
+
+        self.config = config
 
     def initialize_display(self):
         """Clear display."""
