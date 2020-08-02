@@ -133,8 +133,7 @@ class Disassembler:
     @staticmethod
     def op_bnnn(self, nnn):
         """Jump to nnn + V0."""
-        target = (nnn + self.registers[0]) & 0xfff
-        return f"jump {target:#05x} (V0 + nnn:#05x)"
+        return f"jump V0 + {nnn:#05x}"
 
     @staticmethod
     def op_cxkk(self, x, kk):
@@ -149,26 +148,22 @@ class Disassembler:
         Set Vf = 1 iff any set pixels are unset.
         The sprite is drawn by XORing it with the display.
         """
-        X = self.registers[x]
-        Y = self.registers[y]
-        return f"display 8-by-{nibble} sprite at (V{x:x}, V{y:x}) = ({X}, {Y})"
+        return f"display 8-by-{nibble} sprite at (V{x:x}, V{y:x})"
 
     @staticmethod
     def op_ex9e(self, x):
         """Skip next instruction if key with the value of Vx is pressed."""
-        key = self.registers[x] & 0xf
-        return f"skip if key @V{x:x} = {key} is pressed"
+        return f"skip if key @V{x:x} is pressed"
 
     @staticmethod
     def op_exa1(self, x):
         """Skip next instruction if key with the value of Vx is not pressed."""
-        key = self.registers[x] & 0xf
-        return f"skip if key @V{x:x} = {key} is not pressed"
+        return f"skip if key @V{x:x} is not pressed"
 
     @staticmethod
     def op_fx07(self, x):
         """Set Vx to the delay timer value."""
-        return f"V{x:x} = DT ({self.delay_timer})"
+        return f"V{x:x} = DT"
 
     @staticmethod
     def op_fx0a(self, x):
@@ -178,28 +173,27 @@ class Disassembler:
     @staticmethod
     def op_fx15(self, x):
         """Set the delay timer to Vx."""
-        return f"DT = V{x:x} ({self.registers[x]})"
+        return f"DT = V{x:x}"
 
     @staticmethod
     def op_fx18(self, x):
         """Set the sound timer to Vx."""
-        return f"ST = V{x:x} ({self.registers[x]})"
+        return f"ST = V{x:x}"
 
     @staticmethod
     def op_fx1e(self, x):
         """Add Vx to I."""
-        return f"I += V{x:x} ({self.registers[x]})"
+        return f"I += V{x:x}"
 
     @staticmethod
     def op_fx29(self, x):
         """Set I to location of sprite for digit in Vx."""
-        digit = self.registers[x] & 0xf
-        return f"I = sprite address of digit in V{x:x} ({digit})"
+        return f"I = sprite address of digit in V{x:x}"
 
     @staticmethod
     def op_fx33(self, x):
         """Store the BCD representation of Vx in memory locations I, I+1 and I+2."""
-        return f"I[:2] = bcd of value in V{x:x} ({self.registers[x]})"
+        return f"I[:2] = bcd of value in V{x:x}"
 
     @staticmethod
     def op_fx55(self, x):
