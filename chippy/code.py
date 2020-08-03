@@ -153,7 +153,7 @@ class InstructionSet:
         Out of screen parts of sprites wrap around to the other side.
         """
         sprite = self.ram[self.I:self.I + nibble]
-        X = self.registers[x]
+        X = self.registers[x] & 0x3f
         Y = self.registers[y]
         self.registers[0xf] = 0
 

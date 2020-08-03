@@ -142,7 +142,7 @@ class Disassembler:
     @staticmethod
     def op_cxkk(self, x, kk):
         """Set Vx = random byte & kk."""
-        return "V{x:x} = random & {kk:#04x}"
+        return f"V{x:x} = random & {kk:#04x}"
 
     @staticmethod
     def op_dxyn(self, x, y, nibble):
