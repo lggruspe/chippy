@@ -149,6 +149,8 @@ class InstructionSet:
         The sprite is 8 pixels wide and n pixels tall.
         Set Vf = 1 iff any set pixels are unset.
         The sprite is drawn by XORing it with the display.
+
+        Out of screen parts of sprites wrap around to the other side.
         """
         sprite = self.ram[self.I:self.I + nibble]
         X = self.registers[x]
@@ -159,6 +161,9 @@ class InstructionSet:
         for i, row in enumerate(sprite):
             if shift_amount < 0:
                 shifted_row = row >> -shift_amount
+                offscreen = row << (64 + shift_amount)
+                offscreen &= 0xffffffffffffffff
+                shifted_row |= offscreen
             else:
                 shifted_row = row << shift_amount
 
@@ -168,7 +173,9 @@ class InstructionSet:
             self.display[Y32] = xor
 
             if shift_amount < 0:
+                offscreen = unset >> (64 + shift_amount)
                 unset <<= -shift_amount
+                unset |= offscreen
             else:
                 unset >>= shift_amount
             unset &= 0xff
