@@ -169,7 +169,7 @@ class InstructionSet:
 
             Y32 = (Y + i) & 0x1f
             xor = self.display[Y32] ^ shifted_row
-            unset = self.display[Y32] & xor
+            unset = self.display[Y32] & shifted_row
             self.display[Y32] = xor
 
             if shift_amount < 0:
