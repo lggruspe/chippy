@@ -2,40 +2,43 @@
 
 import pygame
 
-def to_number(s):
-    """Convert one-hexdigit hexstring or KeyCode to number."""
-    try:
-        return int(s, 16) & 0xf
-    except ValueError:
-        pass
-    except TypeError:
-        pass
-
 def press(chip8, key):
     """Press key on chip-8 keypad."""
-    shift_amount = to_number(key)
-    if shift_amount is None:
-        return
-    mask = 1 << shift_amount
+    mask = 1 << key
     chip8.keypad |= mask
 
     # Handle op_fx0a
     if chip8.waiting:
         index = chip8.waiting.pop()
-        chip8.registers[index] = shift_amount
+        chip8.registers[index] = key
 
 def release(chip8, key):
     """Release key on chip-8 keypad."""
-    shift_amount = to_number(key)
-    if shift_amount is None:
-        return
     mask = 0xffff
-    mask -= (1 << shift_amount)
+    mask -= (1 << key)
     chip8.keypad &= mask
 
+KEYS = {
+    pygame.K_x: 0,
+    pygame.K_1: 1,
+    pygame.K_2: 2,
+    pygame.K_3: 3,
+    pygame.K_q: 4,
+    pygame.K_w: 5,
+    pygame.K_e: 6,
+    pygame.K_a: 7,
+    pygame.K_s: 8,
+    pygame.K_d: 9,
+    pygame.K_z: 0xa,
+    pygame.K_c: 0xb,
+    pygame.K_4: 0xc,
+    pygame.K_r: 0xd,
+    pygame.K_f: 0xe,
+    pygame.K_v: 0xf,
+}
 def convert_key(key):
-    """Convert pygame key constant to hex character."""
-    return chr(key)
+    """Convert pygame key constant to chip-8 key input."""
+    return KEYS.get(key)
 
 def draw_pixel(x, y, scale=1, color=(255, 255, 255)):
     """Draw pixel on the display."""
@@ -86,7 +89,9 @@ class Window:
                 return
             if event.type == pygame.KEYDOWN:
                 key = convert_key(event.key)
-                press(self.chip8, key)
+                if key is not None:
+                    press(self.chip8, key)
             elif event.type == pygame.KEYUP:
                 key = convert_key(event.key)
-                release(self.chip8, key)
+                if key is not None:
+                    release(self.chip8, key)
