@@ -8,6 +8,7 @@ from .code import handle_instruction, InstructionSet
 from .config import Config
 from .debug import Disassembler
 from .errors import ChippyError
+from .status import Mode
 from .window import Window
 
 class Chippy:
@@ -30,7 +31,7 @@ class Chippy:
         self.initialize_display()
         self.initialize_sprite_data()
 
-        self.running = False
+        self.status = Mode.STOP
         self.waiting = []
 
         self.config = config
@@ -118,12 +119,12 @@ class Chippy:
 
     def run(self):
         """Run program stored in memory."""
-        self.running = True
+        self.status = Mode.RUN
         window = Window(self)
         window.init_screen()
 
         timer_60Hz = 0.01667
-        while self.running:
+        while self.status != Mode.STOP:
             start_time = time.time()
 
             if not self.waiting:

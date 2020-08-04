@@ -2,6 +2,8 @@
 
 import pygame
 
+from .status import Mode
+
 def press(chip8, key):
     """Press key on chip-8 keypad."""
     mask = 1 << key
@@ -85,7 +87,7 @@ class Window:
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.chip8.running = False
+                self.chip8.status = Mode.STOP
                 return
             if event.type == pygame.KEYDOWN:
                 key = convert_key(event.key)
