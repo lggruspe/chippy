@@ -4,6 +4,7 @@ import array
 import pathlib
 import time
 
+from .clock import stabilize_frame
 from .code import handle_instruction, InstructionSet
 from .config import Config
 from .debug import Disassembler
@@ -104,10 +105,11 @@ class Chippy:
 
     def cycle(self):
         """Simulate one cycle."""
-        instruction = self.fetch()
-        self.increment()
-        self.disassemble(instruction) #
-        self.execute(instruction)
+        if not self.waiting:
+            instruction = self.fetch()
+            self.increment()
+            self.disassemble(instruction) #
+            self.execute(instruction)
 
     def countdown(self):
         """Decrement timers and perform timer-related actions."""
@@ -123,23 +125,12 @@ class Chippy:
         window = Window(self)
         window.init_screen()
 
+        stages = (self.cycle, window.handle_events, window.render)
+
         timer_60Hz = 0.01667
         while self.status != Mode.STOP:
-            start_time = time.time()
-
-            if not self.waiting:
-                self.cycle()
-
-            window.handle_events()
-            window.render()
-
-            cycle_duration = time.time() - start_time
-
-            timer_60Hz -= cycle_duration
+            elapsed = stabilize_frame(0.002, *stages)
+            timer_60Hz -= elapsed
             if timer_60Hz <= 0:
                 timer_60Hz = 0.01667
                 self.countdown()
-
-            remaining = 0.002 - cycle_duration
-            if remaining > 0:
-                time.sleep(remaining)
