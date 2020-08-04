@@ -129,8 +129,12 @@ class Chippy:
 
         timer_60Hz = 0.01667
         while self.status != Mode.STOP:
-            elapsed = stabilize_frame(self.config.clock_period, *stages)
-            timer_60Hz -= elapsed
-            if timer_60Hz <= 0:
-                timer_60Hz = 0.01667
-                self.countdown()
+            if self.status == Mode.RUN:
+                elapsed = stabilize_frame(self.config.clock_period, *stages)
+                timer_60Hz -= elapsed
+                if timer_60Hz <= 0:
+                    timer_60Hz = 0.01667
+                    self.countdown()
+            elif self.status == Mode.PAUSE:
+                window.handle_events()
+                window.render()

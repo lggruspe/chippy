@@ -5,7 +5,7 @@ with open("README.md") as fp:
 
 setuptools.setup(
     name="chippy-emu",
-    version="0.0.3",
+    version="0.1.0",
     author="Levi Gruspe",
     author_email="mail.levig@gmail.com",
     description="Chip-8 interpreter",

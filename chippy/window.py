@@ -84,16 +84,34 @@ class Window:
         pygame.display.set_caption("Chippy")
         self.screen = pygame.display.set_mode(self.screen_size)
 
+    def handle_key_event_when_running(self, event):
+        """Handle KEYUP and KEYDOWN events in RUN mode."""
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SEMICOLON:
+                self.chip8.status = Mode.PAUSE
+                return
+            key = convert_key(event.key)
+            if key is not None:
+                press(self.chip8, key)
+        elif event.type == pygame.KEYUP:
+            key = convert_key(event.key)
+            if key is not None:
+                release(self.chip8, key)
+
+    def handle_key_event_when_paused(self, event):
+        """Handle KEYUP and KEYDOWN events when paused."""
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.chip8.status = Mode.RUN
+                return
+
     def handle_events(self):
+        """Handle Pygame events and Chippy interrupts.."""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.chip8.status = Mode.STOP
                 return
-            if event.type == pygame.KEYDOWN:
-                key = convert_key(event.key)
-                if key is not None:
-                    press(self.chip8, key)
-            elif event.type == pygame.KEYUP:
-                key = convert_key(event.key)
-                if key is not None:
-                    release(self.chip8, key)
+            if self.chip8.status == Mode.RUN:
+                self.handle_key_event_when_running(event)
+            elif self.chip8.status == Mode.PAUSE:
+                self.handle_key_event_when_paused(event)
