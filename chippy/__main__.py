@@ -13,16 +13,19 @@ if __name__ == "__main__":
                         help="list available ROMs")
     parser.add_argument("-d", "--disassemble", metavar="ROM",
                         help="disassemble chip-8 program")
-    parser.add_argument("-r", "--rom", help="load chip-8 ROM")
+    parser.add_argument("-p", "--play", metavar="ROM", help="load chip-8 ROM")
     parser.add_argument("-c", "--colors", default=config.color_scheme,
                         help=f"color scheme (default={config.color_scheme!r})")
+    parser.add_argument("-r", "--clock-rate", default=config.clock_rate, type=int,
+                        help=f"clock rate in Hz (default={config.clock_rate!r})")
     args = parser.parse_args()
 
     config.color_scheme = args.colors
+    config.clock_rate = args.clock_rate
 
     if args.list:
         app.list_roms()
     elif args.disassemble:
         app.disassemble(args.disassemble)
-    elif args.rom:
-        app.run(args.rom, config)
+    elif args.play:
+        app.run(args.play, config)
