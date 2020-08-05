@@ -240,19 +240,19 @@ class InstructionSet:
     def op_fx55(self, x):
         """Store registers V0 to Vx (inclusive) in memory starting at location I.
 
-        The value of I gets incremented by x + 1 afterwards.
+        The value of I doesn't get incremented, unlike what the ff. guide says.
+        - http://mattmik.com/files/chip8/mastering/chip8.html
         """
         self.ram[self.I:self.I + x+1] = self.registers[:x+1]
-        self.I = (self.I + x + 1) & 0xffff
 
     @staticmethod
     def op_fx65(self, x):
         """Read registers V0 through Vx (inclusive) from memory starting at I.
 
-        The value of I gets incremented by x + 1 afterwards.
+        The value of I doesn't get incremented, unlike what the ff. guide says.
+        - http://mattmik.com/files/chip8/mastering/chip8.html
         """
         self.registers[:x+1] = self.ram[self.I:self.I + x + 1]
-        self.I = (self.I + x + 1) & 0xffff
 
 def classify(instruction):
     """Classify instruction.

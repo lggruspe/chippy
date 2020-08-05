@@ -108,7 +108,7 @@ class Chippy:
         if not self.waiting:
             instruction = self.fetch()
             self.increment()
-            self.disassemble(instruction) #
+            self.disassemble(instruction)
             self.execute(instruction)
 
     def countdown(self):
