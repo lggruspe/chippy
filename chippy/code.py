@@ -98,12 +98,17 @@ class InstructionSet:
 
     @staticmethod
     def op_8xy6(self, x, y):
-        """Set Vx = Vy >> 1, and set Vf to the LSB prior to the shift.
+        """Set Vx = Vx >> 1, and set Vf to the LSB prior to the shift.
 
         NOTE Descriptions differ between
         - http://mattmik.com/files/chip8/mastering/chip8.html
         - http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
+
+        Vx should be shifted, not Vy.
+        Vy should be ignored.
         """
+        assert x != 0xf
+        y = x
         self.registers[0xf] = self.registers[y] & 0x01
         self.registers[x] = self.registers[y] >> 1
 
@@ -123,7 +128,10 @@ class InstructionSet:
         - http://mattmik.com/files/chip8/mastering/chip8.html
         - http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
         """
-        self.registers[0xf] = self.registers[y] >> 7
+        # NOTE should Vx or Vy be shifted? (see op_8xy6)
+        assert x != 0xf
+        y = x
+        self.registers[0xf] = (self.registers[y] >> 7) & 0x01
         self.registers[x] = (self.registers[y] << 1) & 0xff
 
     @staticmethod
