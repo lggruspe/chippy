@@ -83,15 +83,18 @@ class InstructionSet:
     @staticmethod
     def op_8xy4(self, x, y):
         """Add Vy to Vx and set Vf to the carry bit."""
+        assert x != 0xf
         total = self.registers[x] + self.registers[y]
-        self.registers[0xf] = int(total > 0xff)
         self.registers[x] = total & 0xff
+        self.registers[0xf] = int(total > 0xff)
 
     @staticmethod
     def op_8xy5(self, x, y):
         """Subtract Vy from Vx and set Vf to 1 if there's no borrow."""
-        self.registers[0xf] = int(self.registers[x] >= self.registers[y])
-        self.registers[x] = (self.registers[x] - self.registers[y]) & 0xff
+        assert x != 0xf
+        difference = self.registers[x] - self.registers[y]
+        self.registers[x] = difference & 0xff
+        self.registers[0xf] = int(difference > 0)   # or >= 0? (see Cowgod reference)
 
     @staticmethod
     def op_8xy6(self, x, y):
@@ -107,8 +110,10 @@ class InstructionSet:
     @staticmethod
     def op_8xy7(self, x, y):
         """Set Vx = Vy - Vx and set Vf to 1 if there's no borrow."""
-        self.registers[0xf] = int(self.registers[y] >= self.registers[x])
-        self.registers[x] = (self.registers[y] - self.registers[x]) & 0xff
+        assert x != 0xf
+        difference = self.registers[y] - self.registers[x]
+        self.registers[x] = difference & 0xff
+        self.registers[0xf] = int(difference > 0)   # or >= 0?
 
     @staticmethod
     def op_8xye(self, x, y):
