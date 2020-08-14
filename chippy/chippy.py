@@ -6,7 +6,7 @@ import pathlib
 import time
 
 from .clock import stabilize_frame
-from .code import handle_instruction, dispatch
+from .code import dispatch
 from .config import Config
 from .debug import Disassembler
 from .errors import ChippyError
@@ -38,6 +38,7 @@ class Chippy:
         self.waiting = []
 
         self.config = config
+        self.disassembler = Disassembler()
         self.execution_unit = ExecutionUnit(self)
 
     def initialize_display(self):
@@ -94,20 +95,12 @@ class Chippy:
         self.program_counter += 2
         self.program_counter &= 0x0fff
 
-    def disassemble(self, instruction):
-        """Disassemble instruction."""
-        assembly = handle_instruction(Disassembler, instruction, self, check=False)
-        if assembly:
-            print(assembly)
-        else:
-            print(f"Invalid instruction: {instruction:#06x}")
-
     def cycle(self):
         """Simulate one cycle."""
         if not self.waiting:
             instruction = self.fetch()
             self.increment()
-            self.disassemble(instruction)
+            print(dispatch(instruction, self.disassembler))
             dispatch(instruction, self.execution_unit)
 
     def countdown(self):

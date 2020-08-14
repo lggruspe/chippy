@@ -67,18 +67,6 @@ def classify(instruction):
             return f"op_fx{function:02x}", x >> 8
     return "",
 
-def handle_instruction(cls, instruction, chip8=None, *, check=True):
-    """Handle instruction using static methods in cls."""
-    name, *args = classify(instruction)
-    if not name:
-        if not check:
-            return None
-        message = f"Unknown instruction: {instruction:#06x}"
-        print(message, file=sys.stderr)
-        raise ChippyError(message)
-    handler = getattr(cls, name)
-    return handler(chip8, *args)
-
 def dispatch(instruction, impl):
     """Run instruction on implementation."""
 
