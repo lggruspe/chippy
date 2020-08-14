@@ -214,18 +214,3 @@ class Disassembler:
         The value of I gets incremented by x + 1 afterwards.
         """
         return f"V[:{x:x} + 1] = I[:{x:x} + 1]\n\tI += {x} + 1"
-
-    @staticmethod
-    def run(program: pathlib.Path):
-        """Disassemble chip-8 program file."""
-        binary = program.read_bytes()
-        for offset, byte in enumerate(binary):
-            if offset % 2:
-                continue
-            next_byte = binary[offset + 1]
-            instruction = (byte << 8) + next_byte
-            assembly = handle_instruction(Disassembler, instruction, check=False)
-            if assembly:
-                print(f"{0x200+offset:#06x} {instruction:#06x} {assembly}")
-            else:
-                print(f"Invalid instruction: {instruction:#06x}")
