@@ -1,6 +1,6 @@
 import random
 
-class FunctionalUnit:
+class ExecutionUnit:
     def __init__(self, chip8):
         self.vm = chip8
 

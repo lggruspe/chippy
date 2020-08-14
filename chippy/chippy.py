@@ -1,14 +1,16 @@
 """Chip8 interpreter."""
 
 import array
+from collections import namedtuple
 import pathlib
 import time
 
 from .clock import stabilize_frame
-from .code import handle_instruction, InstructionSet
+from .code import handle_instruction, dispatch
 from .config import Config
 from .debug import Disassembler
 from .errors import ChippyError
+from .processor import ExecutionUnit
 from .status import Mode
 from .window import Window
 
@@ -36,6 +38,7 @@ class Chippy:
         self.waiting = []
 
         self.config = config
+        self.execution_unit = ExecutionUnit(self)
 
     def initialize_display(self):
         """Clear display."""
@@ -91,10 +94,6 @@ class Chippy:
         self.program_counter += 2
         self.program_counter &= 0x0fff
 
-    def execute(self, instruction):
-        """Execute instruction."""
-        handle_instruction(InstructionSet, instruction, self)
-
     def disassemble(self, instruction):
         """Disassemble instruction."""
         assembly = handle_instruction(Disassembler, instruction, self, check=False)
@@ -109,7 +108,7 @@ class Chippy:
             instruction = self.fetch()
             self.increment()
             self.disassemble(instruction)
-            self.execute(instruction)
+            dispatch(instruction, self.execution_unit)
 
     def countdown(self):
         """Decrement timers and perform timer-related actions."""
