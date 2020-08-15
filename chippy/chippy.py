@@ -12,7 +12,7 @@ from .debug import Disassembler
 from .errors import ChippyError
 from .processor import ExecutionUnit
 from .status import Mode
-from .window import Window
+from .window import buzz, Window
 
 class Chippy:
     def __init__(self, config=Config()):
@@ -70,9 +70,6 @@ class Chippy:
             raise ChippyError(f"Invalid jump target: {target:#05x}")
         self.program_counter = target
 
-    def buzz(self):
-        """Sound buzzer."""
-
     def load(self, program: pathlib.Path):
         """Load program into address 0x200."""
         binary = program.read_bytes()
@@ -109,7 +106,7 @@ class Chippy:
             self.delay_timer -= 1
         if self.sound_timer > 0:
             self.sound_timer -= 1
-            self.buzz()
+            buzz()
 
     def run(self):
         """Run program stored in memory."""

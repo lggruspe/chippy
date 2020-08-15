@@ -1,8 +1,16 @@
 """Chip8 display and keypad."""
 
+from pathlib import Path
+
 import pygame
 
 from .status import Mode
+
+def buzz():
+    """Sound buzzer."""
+    path = Path(__file__).with_name("data").joinpath("chime.wav")
+    chime = pygame.mixer.Sound(str(path))
+    pygame.mixer.Sound.play(chime)
 
 def press(chip8, key):
     """Press key on chip-8 keypad."""
